@@ -1,30 +1,266 @@
-name: Validación Examen HTML
+name: Examen HTML EcoBook - Validación Detallada
 on: [push]
 
 jobs:
-  validate:
+  evaluar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Validar estructura de carpetas
-      - name: Verificar carpetas obligatorias
+      # Inicializar variables
+      - name: Configurar entorno
+        id: config
         run: |
-          if [ ! -d "assets" ] || [ ! -d "css" ] || [ ! -d "pages" ]; then
-            echo "::error::❌ Estructura incorrecta. Faltan: assets/, css/ o pages/"
-            exit 1
+          echo "puntaje=0" >> $GITHUB_ENV
+          echo "errores=''" >> $GITHUB_ENV
+          echo "max_puntaje=100" >> $GITHUB_ENV
+          echo "aprobado=false" >> $GITHUB_ENV
+
+      # ========================
+      # 1. VALIDACIÓN DE ESTRUCTURA (15%)
+      # ========================
+      - name: Validar estructura de carpetas
+        run: |
+          # Assets debe contener imágenes
+          if [ ! -d "assets" ]; then
+            echo "::error::❌ Falta carpeta 'assets' (-3 puntos)"
+            echo "errores+='❌ Falta completamente la carpeta assets\n'" >> $GITHUB_ENV
+          else
+            if [ -z "$(find assets -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.svg' \))" ]; then
+              echo "::error::❌ Carpeta 'assets' no contiene imágenes (-3 puntos)"
+              echo "errores+='❌ La carpeta assets no tiene archivos de imagen\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+            fi
           fi
 
-      # Validar archivos HTML obligatorios
-      - name: Verificar archivos HTML
-        run: |
-          if [ ! -f "index.html" ] || [ ! -f "pages/registro.html" ]; then
-            echo "::error::❌ Faltan archivos: index.html o pages/registro.html"
-            exit 1
+          # CSS debe tener archivos
+          if [ ! -d "css" ]; then
+            echo "::error::❌ Falta carpeta 'css' (-3 puntos)"
+            echo "errores+='❌ Falta completamente la carpeta css\n'" >> $GITHUB_ENV
+          else
+            if [ -z "$(find css -name '*.css')" ]; then
+              echo "::error::❌ Carpeta 'css' no contiene archivos CSS (-3 puntos)"
+              echo "errores+='❌ La carpeta css está vacía\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+            fi
           fi
 
-      # Validar semántica HTML (opcional)
-      - name: Validar HTML semántico
+          # JS debe tener archivos (opcional)
+          if [ -d "js" ] && [ -z "$(find js -name '*.js')" ]; then
+            echo "::warning::⚠️ Carpeta 'js' está vacía (pero no afecta puntaje)"
+          fi
+
+          # Validar páginas
+          paginas=("alojamientos" "contacto" "registro")
+          for pagina in "${paginas[@]}"; do
+            if [ ! -f "pages/$pagina.html" ]; then
+              echo "::error::❌ Falta archivo pages/$pagina.html (-3 puntos)"
+              echo "errores+='❌ Falta archivo pages/$pagina.html\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+            fi
+          done
+
+      # ========================
+      # 2. VALIDACIÓN index.html (20%)
+      # ========================
+      - name: Validar index.html
         run: |
-          npm install -g html-validate
-          html-validate index.html pages/*.html || exit 1
+          # Verificar estructura semántica
+          etiquetas=("header" "nav" "main" "article" "section" "footer")
+          for etiqueta in "${etiquetas[@]}"; do
+            if ! grep -q "<$etiqueta" index.html; then
+              echo "::error::❌ Falta etiqueta <$etiqueta> en index.html (-2 puntos)"
+              echo "errores+='❌ Falta etiqueta <$etiqueta> en index.html\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
+            fi
+          done
+
+          # Verificar navegación
+          paginas=("alojamientos" "contacto" "registro")
+          for pagina in "${paginas[@]}"; do
+            if ! grep -q "href=\"pages/$pagina.html\"" index.html; then
+              echo "::error::❌ Falta link a $pagina.html en menú (-1 punto)"
+              echo "errores+='❌ Falta link a $pagina.html en menú\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 1 ))" >> $GITHUB_ENV
+            fi
+          done
+
+          # Verificar cards de alojamientos
+          if ! grep -q "<figure>" index.html || [ $(grep -c "<figure>" index.html) -lt 2 ]; then
+            echo "::error::❌ Debe haber al menos 2 alojamientos con <figure> (-3 puntos)"
+            echo "errores+='❌ Faltan cards de alojamientos en index.html\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+          fi
+
+          # Verificar enlaces en footer
+          if ! grep -q "href=\"pages/contacto.html\"" index.html || ! grep -q "href=\"pages/registro.html\"" index.html; then
+            echo "::error::❌ Footer debe tener links a Contacto y Registro (-2 puntos)"
+            echo "errores+='❌ Enlaces faltantes en footer\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
+          fi
+
+      # ========================
+      # 3. VALIDACIÓN alojamientos.html (20%)
+      # ========================
+      - name: Validar alojamientos.html
+        run: |
+          # Verificar tabla
+          columnas=("Nombre" "Ubicación" "Precio/noche")
+          for columna in "${columnas[@]}"; do
+            if ! grep -q "<th>$columna</th>" pages/alojamientos.html; then
+              echo "::error::❌ Falta columna '$columna' en tabla (-3 puntos)"
+              echo "errores+='❌ Falta columna $columna en tabla\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+            fi
+          done
+
+          # Verificar al menos un registro
+          if ! grep -q "<tr>.*<td>.*</td>.*<td>.*</td>.*<td>.*</td>.*</tr>" pages/alojamientos.html; then
+            echo "::error::❌ Tabla debe tener al menos un registro (-3 puntos)"
+            echo "errores+='❌ Tabla sin registros\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+          fi
+
+          # Verificar aside
+          if ! grep -q "<aside>" pages/alojamientos.html || ! grep -q "<ul>" pages/alojamientos.html; then
+            echo "::error::❌ Falta sección 'Tips eco-friendly' con lista (-4 puntos)"
+            echo "errores+='❌ Falta aside con tips\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 4 ))" >> $GITHUB_ENV
+          fi
+
+      # ========================
+      # 4. VALIDACIÓN contacto.html (15%)
+      # ========================
+      - name: Validar contacto.html
+        run: |
+          # Verificar formulario
+          campos=(
+            'name="nombre".*type="text"'
+            'name="email".*type="email"'
+            'name="mensaje".*<textarea'
+          )
+          for campo in "${campos[@]}"; do
+            if ! grep -Pq "$campo" pages/contacto.html; then
+              echo "::error::❌ Campo incorrecto en formulario de contacto (-2 puntos)"
+              echo "errores+='❌ Campo faltante en formulario de contacto\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
+            fi
+          done
+
+          # Verificar address
+          if ! grep -q "<address>" pages/contacto.html || ! grep -q "contacto@ecobook.com" pages/contacto.html; then
+            echo "::error::❌ Falta información de contacto en <address> (-3 puntos)"
+            echo "errores+='❌ Falta address con información\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+          fi
+
+      # ========================
+      # 5. VALIDACIÓN registro.html (25%)
+      # ========================
+      - name: Validar registro.html
+        run: |
+          # Verificar estructura del formulario
+          if ! grep -q "<fieldset>" pages/registro.html || ! grep -q "<legend>" pages/registro.html; then
+            echo "::error::❌ Formulario debe tener <fieldset> y <legend> (-5 puntos)"
+            echo "errores+='❌ Falta estructura fieldset/legend en formulario\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 5 ))" >> $GITHUB_ENV
+          fi
+
+          # Verificar campos obligatorios
+          campos=(
+            'name="nombre".*type="text".*required'
+            'name="email".*type="email".*required'
+            'name="password".*type="password".*required'
+            'name="terminos".*type="checkbox".*required'
+          )
+          for campo in "${campos[@]}"; do
+            if ! grep -Pq "$campo" pages/registro.html; then
+              echo "::error::❌ Campo requerido faltante o mal configurado (-3 puntos)"
+              echo "errores+='❌ Campo requerido faltante en registro\n'" >> $GITHUB_ENV
+            else
+              echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+            fi
+          done
+
+          # Verificar etiquetas y placeholders
+          if ! grep -q "<label" pages/registro.html || ! grep -q "placeholder" pages/registro.html; then
+            echo "::error::❌ Falta etiquetas label o placeholders (-4 puntos)"
+            echo "errores+='❌ Falta accesibilidad en formulario (labels/placeholders)\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 4 ))" >> $GITHUB_ENV
+          fi
+
+          # Verificar botón de envío
+          if ! grep -q '<button type="submit"' pages/registro.html; then
+            echo "::error::❌ Falta botón de envío (-2 puntos)"
+            echo "errores+='❌ Falta botón de submit\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
+          fi
+
+      # ========================
+      # 6. VALIDACIÓN ADICIONAL (5%)
+      # ========================
+      - name: Validación extra
+        run: |
+          # Verificar enlaces a CSS/JS
+          if ! grep -q '<link.*css/' index.html; then
+            echo "::error::❌ No se enlaza archivo CSS (-2 puntos)"
+            echo "errores+='❌ Falta enlace a archivo CSS\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
+          fi
+
+          # Verificar uso de divs prohibidos
+          if grep -q '<div.*id="header"' index.html || grep -q '<div.*id="footer"' index.html; then
+            echo "::error::❌ No uses <div> para header/footer (-3 puntos)"
+            echo "errores+='❌ Uso incorrecto de divs para secciones semánticas\n'" >> $GITHUB_ENV
+          else
+            echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
+          fi
+
+      # ========================
+      # RESULTADO FINAL
+      # ========================
+      - name: Mostrar resultados
+        run: |
+          # Calcular porcentaje
+          porcentaje=$(( ($puntaje * 100) / $max_puntaje ))
+
+          echo "============================================="
+          echo "📊 RESULTADO DEL EXAMEN - ECOBOOK"
+          echo "✅ Puntos obtenidos: $puntaje/$max_puntaje ($porcentaje%)"
+          echo ""
+
+          if [ $puntaje -ge 70 ]; then
+            echo "🎉 ¡APROBADO! 🎉"
+            echo "aprobado=true" >> $GITHUB_ENV
+          else
+            echo "❌ REPROBADO - Se necesitan 70 puntos para aprobar"
+            echo "aprobado=false" >> $GITHUB_ENV
+          fi
+
+          echo ""
+          echo "🔍 ERRORES ENCONTRADOS:"
+          echo -e "$errores"
+          echo ""
+          echo "💡 Consejo: Corrige los errores y vuelve a enviar tu solución"
+          echo "============================================="
+
+          # Fallar el workflow si no está aprobado
+          if [ "$aprobado" = "false" ]; then
+            exit 1
+          fi

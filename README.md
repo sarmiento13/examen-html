@@ -20,7 +20,8 @@ La startup **"EcoBook"** necesita un sitio web de 4 páginas para reservas de al
 #### **Estructura del Proyecto**
 
 ```
-📁 proyecto_examen/
+📁 examen-html/
+├── 📁 .github/workflows    (Ya creada no tocar)
 ├── 📁 assets/          (Imágenes/icons)
 ├── 📁 css/             (Estilos)
 ├── 📁 js/              (Opcional, para validación de formulario)
