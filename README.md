@@ -97,3 +97,15 @@ La startup **"EcoBook"** necesita un sitio web de 4 páginas para reservas de al
 - ⚠️ **Penalización:** Uso de `<div>` en lugar de etiquetas semánticas (-5% por cada caso).
 
 **📌 Nota final:** El formulario de registro debe ser **100% funcional en HTML** (no se requiere backend, pero sí estructura válida).
+
+### **6. Pasos para rendir el examen**
+1. Haz **fork** de este repositorio
+```bash
+https://github.com/IESTP-JMA/examen-html
+```
+3. Clona el repositorio
+4. Ingresa a la carpeta clonada
+2. Comienza por crear la estructura del proyecto
+3. Completa los archivo HTML  segúm ñps requitos del Examen
+4. Sube tus cambios con `git push`
+5. Revisa los resultados en la pestaña **"Actions"** de tu repo
