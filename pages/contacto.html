@@ -13,7 +13,7 @@
             <ul>
                 <li><a href="../index.html">Inicio</a></li>
                 <li><a href="./alojamientos.html">Alojamientos</a></li>
-                <li><a href="#">Contacto</a></li>
+                <li><a href="./contacto.html">Contacto</a></li>
                 <li><a href="./registro.html">Registro</a></li>
             </ul>
         </nav>
@@ -26,21 +26,20 @@
             <form action="#" method="post">
                 <label for="nombre">Nombre:</label>
                 <input name="nombre" type="text" required placeholder="Ingresa tu nombre">
-            
+
                 <label for="email">Email:</label>
                 <input name="email" type="email" required placeholder="ejemplo@correo.com">
 
-                <input type="hidden" name="mensaje">
-                <textarea id="mensaje" required placeholder="Escribe tu mensaje aquí"></textarea>
-            
+                <label for="mensaje">Mensaje:</label>
+                <textarea id="mensaje" name="mensaje" required placeholder="Escribe tu mensaje aquí"></textarea>
+
                 <button type="submit">Enviar</button>
             </form>
-            
         </fieldset>
     </main>
 
     <address>
-        Contacto: <a href="gaaa:contacto@ecobook.com">contacto@ecobook.com</a>
+        Contacto: <a href="mailto:contacto@ecobook.com">contacto@ecobook.com</a>
     </address>
 
     <script src="../js/script.js"></script>
