@@ -15,12 +15,19 @@ jobs:
           echo "errores=''" >> $GITHUB_ENV
           echo "max_puntaje=100" >> $GITHUB_ENV
           echo "aprobado=false" >> $GITHUB_ENV
-
+      # funcion para agregar mensajes
+      - name: Configurar funciones de mensajes
+        id: funciones
+        run: |
+          echo "::group::📌 Resumen de Validación"
+          echo "Comenzando validación del proyecto..."
+          echo "::endgroup::"
       # ========================
       # 1. VALIDACIÓN DE ESTRUCTURA (15%)
       # ========================
       - name: Validar estructura de carpetas
         run: |
+          echo "::group::📂 Validando estructura de carpetas"
           # Assets debe contener imágenes
           if [ ! -d "assets" ]; then
             echo "::error::❌ Falta carpeta 'assets' (-3 puntos)"
@@ -30,6 +37,8 @@ jobs:
               echo "::error::❌ Carpeta 'assets' no contiene imágenes (-3 puntos)"
               echo "errores+='❌ La carpeta assets no tiene archivos de imagen\n'" >> $GITHUB_ENV
             else
+              echo "✅ Carpeta 'assets' con imágenes encontrada (+3 puntos)"
+              echo "exitos+='✅ Carpeta assets válida\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
             fi
           fi
@@ -43,6 +52,8 @@ jobs:
               echo "::error::❌ Carpeta 'css' no contiene archivos CSS (-3 puntos)"
               echo "errores+='❌ La carpeta css está vacía\n'" >> $GITHUB_ENV
             else
+              echo "✅ Carpeta 'css' con archivos encontrados (+3 puntos)"
+              echo "exitos+='✅ Carpeta css válida\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
             fi
           fi
@@ -59,6 +70,8 @@ jobs:
               echo "::error::❌ Falta archivo pages/$pagina.html (-3 puntos)"
               echo "errores+='❌ Falta archivo pages/$pagina.html\n'" >> $GITHUB_ENV
             else
+              echo "✅ Archivo pages/$pagina.html encontrado (+3 puntos)"
+              echo "exitos+='✅ Archivo pages/$pagina.html presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
             fi
           done
@@ -75,6 +88,8 @@ jobs:
               echo "::error::❌ Falta etiqueta <$etiqueta> en index.html (-2 puntos)"
               echo "errores+='❌ Falta etiqueta <$etiqueta> en index.html\n'" >> $GITHUB_ENV
             else
+              echo "✅ Etiqueta <$etiqueta> encontrada (+2 puntos)"
+              echo "exitos+='✅ Etiqueta <$etiqueta> presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
             fi
           done
@@ -86,6 +101,8 @@ jobs:
               echo "::error::❌ Falta link a $pagina.html en menú (-1 punto)"
               echo "errores+='❌ Falta link a $pagina.html en menú\n'" >> $GITHUB_ENV
             else
+              echo "✅ Link a $pagina.html encontrado (+1 punto)"
+              echo "exitos+='✅ Link a $pagina.html presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 1 ))" >> $GITHUB_ENV
             fi
           done
@@ -95,6 +112,8 @@ jobs:
             echo "::error::❌ Debe haber al menos 2 alojamientos con <figure> (-3 puntos)"
             echo "errores+='❌ Faltan cards de alojamientos en index.html\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiquetas <figure> encontrado (+3 punto)"
+            echo "exitos+='✅ Etiquetas  <figure> presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
           fi
 
@@ -103,6 +122,8 @@ jobs:
             echo "::error::❌ Footer debe tener links a Contacto y Registro (-2 puntos)"
             echo "errores+='❌ Enlaces faltantes en footer\n'" >> $GITHUB_ENV
           else
+            echo "✅ Link a $contacto.html y $registro.html encontrado (+2 punto)"
+            echo "exitos+='✅ Link a $contacto.html y $registro.html presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
           fi
 
@@ -118,6 +139,8 @@ jobs:
               echo "::error::❌ Falta columna '$columna' en tabla (-3 puntos)"
               echo "errores+='❌ Falta columna $columna en tabla\n'" >> $GITHUB_ENV
             else
+              echo "✅ Columna $columna encontrado (+3 punto)"
+              echo "exitos+='✅ $columna presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
             fi
           done
@@ -127,6 +150,8 @@ jobs:
             echo "::error::❌ Tabla debe tener al menos un registro (-3 puntos)"
             echo "errores+='❌ Tabla sin registros\n'" >> $GITHUB_ENV
           else
+            echo "✅ Registro en tabla encontrado (+3 punto)"
+            echo "exitos+='✅ Registro en tabla\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
           fi
 
@@ -135,6 +160,8 @@ jobs:
             echo "::error::❌ Falta sección 'Tips eco-friendly' con lista (-4 puntos)"
             echo "errores+='❌ Falta aside con tips\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiqueta <ul> dentro de <aside> encontrado (+4 punto)"
+            echo "exitos+='✅ Etiqueta <ul> presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 4 ))" >> $GITHUB_ENV
           fi
 
@@ -154,6 +181,8 @@ jobs:
               echo "::error::❌ Campo incorrecto en formulario de contacto (-2 puntos)"
               echo "errores+='❌ Campo faltante en formulario de contacto\n'" >> $GITHUB_ENV
             else
+              echo "✅ $campo en formulario encontrado (+2 punto)"
+              echo "exitos+='✅ $campo presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
             fi
           done
@@ -163,6 +192,8 @@ jobs:
             echo "::error::❌ Falta información de contacto en <address> (-3 puntos)"
             echo "errores+='❌ Falta address con información\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiqueta <address> encontrado (+3 punto)"
+            echo "exitos+='✅ <address> presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
           fi
 
@@ -176,6 +207,8 @@ jobs:
             echo "::error::❌ Formulario debe tener <fieldset> y <legend> (-5 puntos)"
             echo "errores+='❌ Falta estructura fieldset/legend en formulario\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiquetaa <fieldset> y <legend> encontrado (+5 punto)"
+            echo "exitos+='✅ Etiquetaa <fieldset> y <legend> presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 5 ))" >> $GITHUB_ENV
           fi
 
@@ -191,6 +224,8 @@ jobs:
               echo "::error::❌ Campo requerido faltante o mal configurado (-3 puntos)"
               echo "errores+='❌ Campo requerido faltante en registro\n'" >> $GITHUB_ENV
             else
+              echo "✅ $campo requerido encontrado (+3 punto)"
+              echo "exitos+='✅ $campo requerido presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
             fi
           done
@@ -200,6 +235,8 @@ jobs:
             echo "::error::❌ Falta etiquetas label o placeholders (-4 puntos)"
             echo "errores+='❌ Falta accesibilidad en formulario (labels/placeholders)\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiquetas <label> o "placeholder" encontrado (+4 punto)"
+            echo "exitos+='✅ Etiquetas <label> o "placeholder" presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 4 ))" >> $GITHUB_ENV
           fi
 
@@ -208,6 +245,8 @@ jobs:
             echo "::error::❌ Falta botón de envío (-2 puntos)"
             echo "errores+='❌ Falta botón de submit\n'" >> $GITHUB_ENV
           else
+            echo "✅ Etiquetas <button> encontrado (+2 punto)"
+            echo "exitos+='✅ Etiquetas <button> presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
           fi
 
@@ -221,6 +260,8 @@ jobs:
             echo "::error::❌ No se enlaza archivo CSS (-2 puntos)"
             echo "errores+='❌ Falta enlace a archivo CSS\n'" >> $GITHUB_ENV
           else
+            echo "✅ Archivo CSS enlazado encontrado (+2 punto)"
+            echo "exitos+='✅ Archivo CSS enlazado presente\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 2 ))" >> $GITHUB_ENV
           fi
 
@@ -229,6 +270,8 @@ jobs:
             echo "::error::❌ No uses <div> para header/footer (-3 puntos)"
             echo "errores+='❌ Uso incorrecto de divs para secciones semánticas\n'" >> $GITHUB_ENV
           else
+            echo "✅ No se encontro <div> prohibidos (+2 punto)"
+            echo "exitos+='✅ Sin <div> prohibidos\n'" >> $GITHUB_ENV
             echo "puntaje=$(( $puntaje + 3 ))" >> $GITHUB_ENV
           fi
 
@@ -237,28 +280,33 @@ jobs:
       # ========================
       - name: Mostrar resultados
         run: |
-          # Calcular porcentaje
-          porcentaje=$(( ($puntaje * 100) / $max_puntaje ))
+          porcentaje=$((($puntaje * 100) / $max_puntaje))
+          # Convertir a nota 0-20 (regla de tres simple)
+          nota=$(echo "scale=1; $puntaje * 20 / 100" | bc)
 
-          echo "============================================="
-          echo "📊 RESULTADO DEL EXAMEN - ECOBOOK"
-          echo "✅ Puntos obtenidos: $puntaje/$max_puntaje ($porcentaje%)"
+          echo "::group::📊 RESULTADO FINAL"
+          echo "PUNTUACIÓN: $puntaje/$max_puntaje ($porcentaje%)"
+          echo "NOTA (0-20): $nota/20"
+          echo "PORCENTAJE: $porcentaje%"
           echo ""
 
           if [ $puntaje -ge 70 ]; then
-            echo "🎉 ¡APROBADO! 🎉"
+            echo "🎉 ¡APROBADO! 🎉 (Nota minima: 14/20)"
             echo "aprobado=true" >> $GITHUB_ENV
           else
-            echo "❌ REPROBADO - Se necesitan 70 puntos para aprobar"
+            echo "❌ REPROBADO - Se necesitan 70 puntos (14/20) para aprobar"
             echo "aprobado=false" >> $GITHUB_ENV
           fi
 
           echo ""
-          echo "🔍 ERRORES ENCONTRADOS:"
+          echo "✔️ TESTS PASADOS:"
+          echo -e "$exitos"
+          echo ""
+          echo "✖️ ERRORES ENCONTRADOS:"
           echo -e "$errores"
           echo ""
           echo "💡 Consejo: Corrige los errores y vuelve a enviar tu solución"
-          echo "============================================="
+          echo "::endgroup::"
 
           # Fallar el workflow si no está aprobado
           if [ "$aprobado" = "false" ]; then
