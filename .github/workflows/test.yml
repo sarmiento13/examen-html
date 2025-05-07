@@ -97,11 +97,11 @@ jobs:
           # Verificar navegación
           paginas=("alojamientos" "contacto" "registro")
           for pagina in "${paginas[@]}"; do
-            if ! grep -q "href=\"pages/$pagina.html\"" index.html; then
+            if ! grep -q "href=\"./pages/$pagina.html\"" index.html; then
               echo "::error::❌ Falta link a $pagina.html en menú (-1 punto)"
               echo "errores+='❌ Falta link a $pagina.html en menú\n'" >> $GITHUB_ENV
             else
-              echo "✅ Link a $pagina.html encontrado (+1 punto)"
+              echo "✅ Link a $pagina encontrado (+1 punto)"
               echo "exitos+='✅ Link a $pagina.html presente\n'" >> $GITHUB_ENV
               echo "puntaje=$(( $puntaje + 1 ))" >> $GITHUB_ENV
             fi
