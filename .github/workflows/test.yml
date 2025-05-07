@@ -300,10 +300,10 @@ jobs:
 
           echo ""
           echo "✔️ TESTS PASADOS:"
-          echo -e "$exitos"
+          echo -e $exitos
           echo ""
           echo "✖️ ERRORES ENCONTRADOS:"
-          echo -e "$errores"
+          echo -e $errores
           echo ""
           echo "💡 Consejo: Corrige los errores y vuelve a enviar tu solución"
           echo "::endgroup::"
